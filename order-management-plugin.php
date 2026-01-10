@@ -35,14 +35,13 @@ function omp_admin_menu() {
 	);
 }
 
-// Settings page handler
 function omp_handle_settings() {
 
 	if (!current_user_can('manage_options')) {
 		return;
 	}
 
-	// Only handle POST submissions
+	// Save settings
 	if (!empty($_POST['omp_save_settings'])) {
 
 		check_admin_referer('omp_save_settings_nonce');
@@ -51,6 +50,7 @@ function omp_handle_settings() {
 		$password = isset($_POST['omp_password']) ? sanitize_text_field(wp_unslash($_POST['omp_password'])) : '';
 
 		update_option('omp_login', $login);
+
 		if ($password !== '') {
 			update_option('omp_password', $password);
 		}
@@ -61,6 +61,30 @@ function omp_handle_settings() {
 			esc_html__('Settings saved', 'order-management-plugin'),
 			'success'
 		);
+	}
+
+	// Test API connection
+	if (!empty($_POST['omp_test_connection'])) {
+
+		check_admin_referer('omp_save_settings_nonce');
+
+		$token = omp_get_access_token();
+
+		if ($token) {
+			add_settings_error(
+				'omp_messages',
+				'omp_connection_ok',
+				esc_html__('Connection successful', 'order-management-plugin'),
+				'success'
+			);
+		} else {
+			add_settings_error(
+				'omp_messages',
+				'omp_connection_failed',
+				esc_html__('Connection failed. Check credentials.', 'order-management-plugin'),
+				'error'
+			);
+		}
 	}
 }
 

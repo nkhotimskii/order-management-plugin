@@ -32,7 +32,7 @@ function omp_get_access_token() {
 		[
 			'headers' => [
 				'Authorization' => 'Basic ' . base64_encode($login . ':' . $password),
-				'Accept'        => 'application/json',
+				'Accept'        => 'application/json;charset=utf-8'
 			],
 			'timeout' => 15,
 		]

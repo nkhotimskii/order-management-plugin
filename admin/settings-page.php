@@ -47,6 +47,12 @@
             'primary',
             'omp_save_settings'
         );
+        submit_button(
+            esc_html__('Test Connection', 'order-management-plugin'),
+            'secondary',
+            'omp_test_connection',
+            false
+        );
         ?>
     </form>
 </div>
