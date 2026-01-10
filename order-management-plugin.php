@@ -84,10 +84,11 @@ function omp_render_settings() {
 		include $template;
 	}
 }
-
 // Render Dashboard Page
 function omp_render_dashboard() {
 	echo '<div class="wrap"><h1>' .
 		esc_html__('Dashboard', 'order-management-plugin') .
 		'</h1></div>';
 }
+
+require_once plugin_dir_path(__FILE__) . 'frontend/shortcode-dashboard.php';
