@@ -92,3 +92,4 @@ function omp_render_dashboard() {
 }
 
 require_once plugin_dir_path(__FILE__) . 'frontend/shortcode-dashboard.php';
+require_once plugin_dir_path(__FILE__) . 'includes/api.php';
