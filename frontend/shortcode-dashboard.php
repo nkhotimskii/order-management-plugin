@@ -1,16 +1,33 @@
 <?php
-
 defined('ABSPATH') || exit;
 
-/**
- * Render Order Management frontend dashboard
- *
- * @return string
- */
+function omp_shortcode_orders() {
+
+	// Check if user is logged in
+	if (!is_user_logged_in()) {
+		return esc_html__('Please log in to view orders.', 'order-management-plugin');
+	}
+
+	// Get orders data
+	$current_date = date('Y-m-d');
+	$orders = omp_get_customer_orders($current_date);
+
+	// Return if no orders exist
+	if (!$orders) {
+		return '<p>No orders available</p>';
+	}
+
+	// Count orders
+	$orders_quantity = count($orders);
+
+	$output = '<p>Total Orders: ' . $orders_quantity . '</p>';
+
+	return $output;
+}
 
 function omp_render_frontend_dashboard() {
 
-	// Optional: restrict to logged-in users
+	// Restrict to logged-in users
 	if (!is_user_logged_in()) {
 		return esc_html__(
 			'You must be logged in to view this page.',
@@ -22,13 +39,6 @@ function omp_render_frontend_dashboard() {
 	?>
 	<div class="omp-frontend-dashboard">
 		<h2><?php esc_html_e('Order Management', 'order-management-plugin'); ?></h2>
-
-		<p>
-			<?php esc_html_e(
-				'Frontend dashboard placeholder. Orders will appear here.',
-				'order-management-plugin'
-			); ?>
-		</p>
 	</div>
 	<?php
 
@@ -40,6 +50,10 @@ function omp_register_shortcodes() {
 	add_shortcode(
 		'order_management_dashboard',
 		'omp_render_frontend_dashboard'
+	);
+	add_shortcode(
+		'omp_orders',
+		'omp_shortcode_orders'
 	);
 }
 
