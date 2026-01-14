@@ -10,7 +10,7 @@ function omp_shortcode_orders() {
 
 	// Get orders data
 	$current_date = date('Y-m-d');
-	$orders = omp_get_customer_orders($current_date);
+	$orders = omp_get_customer_orders_by_date($current_date);
 
 	// Return if no orders exist
 	if (!$orders) {

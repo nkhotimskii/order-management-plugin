@@ -113,33 +113,66 @@ function omp_api_request($method, $endpoint, $args = []) {
 }
 
 /**
- * Get customer orders
+ * Get customer orders by date
  *
  * @param string $date Date in YYYY-MM-DD format
  * @return array Order rows or empty array
  */
-function omp_get_customer_orders($date) {
+function omp_get_customer_orders_by_date($date) {
 
-	$start = $date . ' 00:00:00';
-	$end   = date('Y-m-d', strtotime($date . ' +1 day')) . ' 00:00:00';
+	$orders = [];
+	$start_dt = new DateTime($date . ' 00:00:00');
+	$end_dt   = new DateTime($date . ' 23:59:59');
 
-	$filter = sprintf(
-		'moment>%s;moment<%s',
-		$start, // strictly greater than start
-		$end // strictly less than next day midnight
-	);
+	$limit = 200;
+	$offset = 0;
 
-	$response = omp_api_request(
-		'GET',
-		'entity/customerorder',
-		[
-			'filter' => $filter
-		]
-	);
+	while (true) {
 
-	if (empty($response['success'])) {
-		return [];
+		$response = omp_api_request('GET', 'entity/customerorder', [
+			'limit' => $limit,
+			'offset' => $offset
+		]);
+
+		if (empty($response['success'])
+			|| empty($response['data']['rows'])) {
+			break;
+		}
+
+		foreach ($response['data']['rows'] as $order) {
+
+			if (omp_has_kepimo_data_matching($order, $start_dt, $end_dt)) {
+				$orders[] = $order;
+			}
+		}
+
+		if (count($response['data']['rows']) < $limit) {
+			break;
+		}
+
+		$offset += $limit;
 	}
 
-	return $response['data']['rows'] ?? [];
+	return $orders;
+}
+
+/**
+ * Check if order has "Kepimo data" attribute matching date range
+ * 
+ * @param array $order Order data from MoySklad API
+ * @param DateTime $start_dt Start of date range (e.g. 2026-01-14 00:00:00)
+ * @param DateTime $end_dt End of date range (e.g. 2026-01-14 23:59:59)
+ * @return bool True if "Kepimo data" exists and is within range, false otherwise
+ */
+function omp_has_kepimo_data_matching($order, $start_dt, $end_dt) {
+
+	foreach ($order['attributes'] ?? [] as $attribute) {
+		if ($attribute['name'] === 'Kepimo data' && !empty($attribute['value'])) {
+			$date_formatted = preg_replace('/\.\d+$/', '', $attribute['value']);
+			$attr_dt = new DateTime($date_formatted);
+			return $attr_dt >= $start_dt && $attr_dt <= $end_dt;
+		}
+	}
+
+	return false;
 }
