@@ -113,6 +113,61 @@ function omp_api_request($method, $endpoint, $args = []) {
 }
 
 /**
+ * Aggregated orders products with total weights and quantity
+ *
+ * @param string $date Date in YYYY-MM-DD format
+ * @return array Aggregated orders products with weights and quantity or empty array
+ */
+function omp_agg_products($date) {
+
+	$agg_orders_products = [];
+	$product_cache = [];
+
+	$db_orders = omp_get_customer_orders_by_date($date);
+
+	foreach ($db_orders as $order) {
+
+		$positions = $order['positions']['rows'] ?? [];
+
+		foreach ($positions as $position) {
+
+			$product_href = $position['assortment']['meta']['href'];
+
+			if (!isset($product_cache[$product_href])) {
+				$product_cache[$product_href] = omp_api_request('GET', $product_href);
+			}
+
+			$product_data = $product_cache[$product_href]['data'];
+			$product_name = $product_data['name'];
+			$product_weight = $product_data['weight']; // grams
+			$position_quantity = $position['quantity'];
+			$position_weight = $product_weight * $position_quantity / 1000; // kilograms
+
+			// Create an associative array or add weight to existing one
+			$found = false;
+			foreach ($agg_orders_products as &$item) {
+				if ($item['product_name'] === $product_name) {
+					$item['weight'] += $position_weight;
+					$item['quantity'] += $position_quantity;
+					$found = true;
+					break;
+				}
+			}
+			unset($item);
+			if (!$found) {
+				$agg_orders_products[] = [
+					'product_name' => $product_name,
+					'weight' => $position_weight,
+					'quantity' => $position_quantity
+				];
+			}
+		}
+	}
+
+	return $agg_orders_products;
+}
+
+/**
  * Get customer orders by date
  *
  * @param string $date Date in YYYY-MM-DD format
@@ -124,14 +179,15 @@ function omp_get_customer_orders_by_date($date) {
 	$start_dt = new DateTime($date . ' 00:00:00');
 	$end_dt   = new DateTime($date . ' 23:59:59');
 
-	$limit = 200;
+	$limit = 100;
 	$offset = 0;
 
 	while (true) {
 
 		$response = omp_api_request('GET', 'entity/customerorder', [
 			'limit' => $limit,
-			'offset' => $offset
+			'offset' => $offset,
+			'expand' => 'positions'
 		]);
 
 		if (empty($response['success'])

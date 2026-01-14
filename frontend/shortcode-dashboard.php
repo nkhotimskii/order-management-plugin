@@ -1,28 +1,49 @@
 <?php
 defined('ABSPATH') || exit;
 
-function omp_shortcode_orders() {
+function omp_shortcode_agg_products_table() {
 
 	// Check if user is logged in
 	if (!is_user_logged_in()) {
-		return esc_html__('Please log in to view orders.', 'order-management-plugin');
+		return esc_html__('Please log in to view orders', 'order-management-plugin');
 	}
 
 	// Get orders data
 	$current_date = date('Y-m-d');
-	$orders = omp_get_customer_orders_by_date($current_date);
+	$products = omp_agg_products($current_date);
 
 	// Return if no orders exist
-	if (!$orders) {
-		return '<p>No orders available</p>';
+	if (empty($products)) {
+		return '<p>' . esc_html__('No orders for chosen day', 'order-management-plugin') . '</p>';
 	}
 
-	// Count orders
-	$orders_quantity = count($orders);
+	// Count total weight
+	$total_weight_number = 0;
 
-	$output = '<p>Total Orders: ' . $orders_quantity . '</p>';
+	$products_table = '<table>';
 
-	return $output;
+	// Add header
+	$products_table .= '<tr><th>Product</th><th>Weight (kg)</th><th>Quantity</th></tr>';
+
+	foreach ($products as $product) {
+
+		$total_weight_number += (float) $product['weight'];
+		$products_table .= sprintf(
+			'<tr><td>%s</td><td><strong>%s</strong></td><td><strong>%s</strong></td></tr>',
+			esc_html($product['product_name']),
+			number_format($product['weight'], 2),
+			$product['quantity']
+		);
+	}
+
+	$products_table .= '</table>';
+
+	$total_weight = sprintf(
+		'<p>Total Weight: <strong>%s kg</strong></p>',
+		number_format($total_weight_number, 2)
+	);
+
+	return $total_weight . $products_table;
 }
 
 function omp_render_frontend_dashboard() {
@@ -52,8 +73,8 @@ function omp_register_shortcodes() {
 		'omp_render_frontend_dashboard'
 	);
 	add_shortcode(
-		'omp_orders',
-		'omp_shortcode_orders'
+		'agg_products_table',
+		'omp_shortcode_agg_products_table'
 	);
 }
 
