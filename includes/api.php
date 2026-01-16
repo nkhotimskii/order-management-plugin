@@ -138,7 +138,19 @@ function omp_agg_products($date) {
 			}
 
 			$product_data = $product_cache[$product_href]['data'];
-			$product_name = $product_data['name'];
+			$arbitrary_name = false;
+			if (!empty($product_data['attributes'])) {
+				foreach ($product_data['attributes'] as $attribute) {
+					if ($attribute['name'] === 'Trumpas pavadinimas') {
+						$product_name = $attribute['value'];
+						$arbitrary_name = true;
+						break;
+					}
+				}
+			}
+			if (!$arbitrary_name) {
+				$product_name = $product_data['name'];
+			}
 			$product_weight = $product_data['weight']; // grams
 			$position_quantity = $position['quantity'];
 			$position_weight = $product_weight * $position_quantity / 1000; // kilograms
