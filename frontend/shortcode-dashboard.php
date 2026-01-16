@@ -28,11 +28,17 @@ function omp_shortcode_agg_products_table() {
 	foreach ($products as $product) {
 
 		$total_weight_number += (float) $product['weight'];
+		$product_name = esc_html($product['product_name']);
+		$product_weight = $product['weight'];
+		if (!is_string($product_weight)) {
+			$product_weight = number_format($product['weight'], 2);
+		}
+		$product_quantity = $product['quantity'];
 		$products_table .= sprintf(
 			'<tr><td>%s</td><td><strong>%s</strong></td><td><strong>%s</strong></td></tr>',
-			esc_html($product['product_name']),
-			number_format($product['weight'], 2),
-			$product['quantity']
+			$product_name,
+			$product_weight,
+			$product_quantity
 		);
 	}
 

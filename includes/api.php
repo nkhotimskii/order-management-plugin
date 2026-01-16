@@ -131,13 +131,14 @@ function omp_agg_products($date) {
 
 		foreach ($positions as $position) {
 
+			// Get product data
 			$product_href = $position['assortment']['meta']['href'];
-
 			if (!isset($product_cache[$product_href])) {
 				$product_cache[$product_href] = omp_api_request('GET', $product_href);
 			}
-
 			$product_data = $product_cache[$product_href]['data'];
+
+			// Get product name
 			$arbitrary_name = false;
 			if (!empty($product_data['attributes'])) {
 				foreach ($product_data['attributes'] as $attribute) {
@@ -151,15 +152,26 @@ function omp_agg_products($date) {
 			if (!$arbitrary_name) {
 				$product_name = $product_data['name'];
 			}
-			$product_weight = $product_data['weight']; // grams
-			$position_quantity = $position['quantity'];
-			$position_weight = $product_weight * $position_quantity / 1000; // kilograms
 
-			// Create an associative array or add weight to existing one
+			// Calculate position weight
+			$product_weight = (float) $product_data['weight']; // grams
+			$position_quantity = (float) $position['quantity'];
+			if ($product_weight == 0 || empty($product_weight)) {
+				$product_weight = omp_parse_product_weight($product_name);
+			} 
+			if ($product_weight > 0) {
+				$position_weight = $product_weight * $position_quantity / 1000; // kilograms
+			} else {
+				$position_weight = 'Error parsing weight';
+			}
+
+			// Create an associative array or add weight and quantity to existing one
 			$found = false;
 			foreach ($agg_orders_products as &$item) {
 				if ($item['product_name'] === $product_name) {
-					$item['weight'] += $position_weight;
+					if (!is_string($position_weight)) {
+						$item['weight'] += $position_weight;
+					}
 					$item['quantity'] += $position_quantity;
 					$found = true;
 					break;
@@ -240,6 +252,39 @@ function omp_has_kepimo_data_matching($order, $start_dt, $end_dt) {
 			$attr_dt = new DateTime($date_formatted);
 			return $attr_dt >= $start_dt && $attr_dt <= $end_dt;
 		}
+	}
+
+	return false;
+}
+
+/**
+ * Find product weight from product name
+ * 
+ * @param string $product_name Product name
+ * @param string $desired_unit Return weight with this unit (default 'g')
+ * @return float Weight if there is a weight in g/kg at the end of the string, false otherwise
+ */
+function omp_parse_product_weight($product_name, $desired_unit='g') {
+
+	preg_match('/.*(?<weight>\d+)\s?(?<unit>g|kg)\s*$/', $product_name, $matches);
+
+	if (!isset($matches['weight']) || !isset($matches['unit'])) {
+		return false;
+	}
+
+	$weight = (float) $matches['weight'];
+	$unit = $matches['unit'];
+
+	if ($unit === $desired_unit) {
+		return $weight;
+	}
+
+	if ($unit === 'g' && $desired_unit === 'kg') {
+		return $weight / 1000;
+	}
+
+	if ($unit === 'kg' && $desired_unit === 'g') {
+		return $weight * 1000;
 	}
 
 	return false;
