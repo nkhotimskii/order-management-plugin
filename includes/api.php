@@ -138,13 +138,19 @@ function omp_agg_products($date) {
 			}
 			$product_data = $product_cache[$product_href]['data'];
 
-			// Get product name
-			$arbitrary_name = false;
+			// Get product name, sort number
+			$arbitrary_name = null;
+			$sort_number = null;
 			if (!empty($product_data['attributes'])) {
 				foreach ($product_data['attributes'] as $attribute) {
 					if ($attribute['name'] === 'Trumpas pavadinimas') {
 						$product_name = $attribute['value'];
 						$arbitrary_name = true;
+					}
+					if ($attribute['name'] === 'Rūšiavimas') {
+						$sort_number = $attribute['value'];
+					}
+					if ($arbitrary_name && $sort_number) {
 						break;
 					}
 				}
@@ -182,13 +188,45 @@ function omp_agg_products($date) {
 				$agg_orders_products[] = [
 					'product_name' => $product_name,
 					'weight' => $position_weight,
-					'quantity' => $position_quantity
+					'quantity' => $position_quantity,
+					'sort_number' => $sort_number
 				];
 			}
 		}
 	}
 
-	return $agg_orders_products;
+	// Sort products
+	$sort_numbers = [];
+	foreach ($agg_orders_products as $product) {
+
+		$sort_numbers []= $product['sort_number'];
+	}
+
+	sort($sort_numbers);
+
+	$agg_products_sorted = [];
+	foreach ($sort_numbers as $sort_number) {
+
+		foreach ($agg_orders_products as $product_to_sort) {
+
+			if ($product_to_sort['sort_number'] === $sort_number) {
+
+				$agg_products_sorted []= $product_to_sort;
+			}
+		}
+	}
+
+	// Check if bread or not
+	foreach ($agg_products_sorted as &$product) {
+		if (!$product['sort_number'] || $product['sort_number'] == '') {
+			$product['is_bread'] = false;
+		} else {
+			$product['is_bread'] = true;
+		}
+	}
+	unset($product);
+
+	return $agg_products_sorted;
 }
 
 /**

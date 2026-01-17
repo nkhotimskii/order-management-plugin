@@ -25,6 +25,10 @@ function omp_shortcode_agg_products_table() {
 	// Add header
 	$products_table .= '<tr><th>Product</th><th>Weight (kg)</th><th>Quantity</th></tr>';
 
+	// Display no bread separately
+	$bread = '';
+	$no_bread = '';
+
 	foreach ($products as $product) {
 
 		$total_weight_number += (float) $product['weight'];
@@ -34,13 +38,21 @@ function omp_shortcode_agg_products_table() {
 			$product_weight = number_format($product['weight'], 2);
 		}
 		$product_quantity = $product['quantity'];
-		$products_table .= sprintf(
+		$product_row = sprintf(
 			'<tr><td>%s</td><td><strong>%s</strong></td><td><strong>%s</strong></td></tr>',
 			$product_name,
 			$product_weight,
 			$product_quantity
 		);
+		if ($product['is_bread']) {
+			$bread .= $product_row;
+		} else {
+			$no_bread .= $product_row;
+		}
 	}
+
+	// Add empty row between bread and no bread
+	$products_table .= $bread . '<tr><td></td><td></td><td></td></tr>' . $no_bread;
 
 	$products_table .= '</table>';
 
