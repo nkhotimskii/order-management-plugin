@@ -1,0 +1,27 @@
+{
+  "name": "order-management-plugin",
+  "version": "1.0.0",
+  "description": "Order Management Plugin (MoySklad JSON API)",
+  "main": "index.js",
+  "scripts": {
+    "lint": "npm run lint:php && npm run lint:html && npm run lint:css",
+    "lint:php": "php vendor/squizlabs/php_codesniffer/bin/phpcs",
+    "lint:html": "htmlhint \"**/*.php\"",
+    "lint:css": "stylelint \"**/*.css\"",
+    "fix:php": "php vendor/squizlabs/php_codesniffer/bin/phpcbf"
+  },
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "orders",
+    "moysklad"
+  ],
+  "author": "Nikolai Khotimskii",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "htmlhint": "^1.9.1",
+    "stylelint": "^17.4.0",
+    "stylelint-config-standard": "^40.0.0"
+  }
+}

@@ -1,0 +1,149 @@
+# Copyright (C) 2025
+# This file is distributed under the same license as the Order Management plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Order Management 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-26 20:30+0000\n"
+"PO-Revision-Date: 2025-02-26 20:30+0000\n"
+"Last-Translator: Nikolai Khotimskii\n"
+"Language-Team: Lithuanian\n"
+"Language: lt_LT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin/settings-page.php
+msgid "Save Settings"
+msgstr "Išsaugoti nustatymus"
+
+#: admin/settings-page.php
+msgid "Test Connection"
+msgstr "Testuoti ryšį"
+
+#: frontend/dashboard-template.php
+msgid "Please log in to view orders."
+msgstr "Prisijunkite, kad galėtumėte peržiūrėti užsakymus."
+
+#: frontend/shortcode-dashboard.php
+msgid "Please log in to view orders"
+msgstr "Prisijunkite, kad galėtumėte peržiūrėti užsakymus"
+
+#: frontend/shortcode-dashboard.php
+msgid "No orders for chosen day"
+msgstr "Nėra užsakymų pasirinktai dienai"
+
+#: frontend/shortcode-dashboard.php
+msgid "Orders on %s"
+msgstr "Užsakymai %s"
+
+#: frontend/shortcode-dashboard.php
+msgid "Total Weight (bread): %s kg"
+msgstr "Bendra masė (duona): %s kg"
+
+#: frontend/shortcode-dashboard.php
+msgid "! Error calculating total weight"
+msgstr "! Klaida skaičiuojant bendrą svorį"
+
+#: frontend/shortcode-dashboard.php
+msgid "No weight for product(s):"
+msgstr "Nėra svorio produktui(ams):"
+
+#: frontend/shortcode-dashboard.php
+msgid "Details"
+msgstr "Detaliau"
+
+#: frontend/shortcode-dashboard.php
+msgid "Show"
+msgstr "Rodyti"
+
+#: frontend/shortcode-dashboard.php
+msgid "— %s"
+msgstr "— %s"
+
+#: frontend/shortcode-dashboard.php
+msgid "Žemėlapis"
+msgstr "Žemėlapis"
+
+#: frontend/shortcode-dashboard.php
+msgid "City"
+msgstr "Miestas"
+
+#: frontend/shortcode-dashboard.php
+msgid "Sellers"
+msgstr "Pardavėjai"
+
+#: frontend/shortcode-dashboard.php
+msgid "Chosen date: %s"
+msgstr "Pasirinkta data: %s"
+
+#: frontend/shortcode-dashboard.php
+msgid "Quantity"
+msgstr "Kiekis"
+
+#: frontend/shortcode-dashboard.php
+msgid "Product"
+msgstr "Produktas"
+
+#: frontend/shortcode-dashboard.php
+msgid "Chosen date"
+msgstr "Pasirinkta data"
+
+#: order-management-plugin.php
+msgid "Settings saved"
+msgstr "Nustatymai išsaugoti"
+
+#: order-management-plugin.php
+msgid "Connection successful"
+msgstr "Ryšys sėkmingas"
+
+#: order-management-plugin.php
+msgid "Connection failed. Check credentials."
+msgstr "Ryšys nepavyko. Patikrinkite prisijungimo duomenis."
+
+#: order-management-plugin.php
+msgid "You do not have permission to access this page"
+msgstr "Neturite teisės pasiekti šį puslapį"
+
+
+msgid "Order Management Plugin"
+msgstr "Užsakymų valdymas"
+
+msgid "MoySklad Login"
+msgstr "MoySklad prisijungimo vardas"
+
+msgid "MoySklad Password"
+msgstr "MoySklad slaptažodis"
+
+msgid "Leave blank to keep current password"
+msgstr "Palikite tuščią, jei norite išsaugoti dabartinį slaptažodį"
+
+msgid "To Orders"
+msgstr "Į užsakymus"
+
+msgid "Order Management Dashboard"
+msgstr "Užsakymų valdymo suvestinė"
+
+msgid "Show Orders"
+msgstr "Rodyti užsakymus"
+
+msgid "Order Number"
+msgstr "Užsakymo numeris"
+
+msgid "Counterparty"
+msgstr "Kontrahentas"
+
+msgid "Order Amount"
+msgstr "Užsakymo suma"
+
+msgid "Status"
+msgstr "Būsena"
+
+msgid "Tracking Number"
+msgstr "Sekimo numeris"
+
+msgid "Pickup Shop"
+msgstr "Paėmimo parduotuvė"
+
+msgid "No orders found"
+msgstr "Užsakymų nerasta"

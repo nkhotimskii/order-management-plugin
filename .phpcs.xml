@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<ruleset name="Order Management Plugin">
+    <description>PHP CodeSniffer configuration</description>
+    <file>order-management-plugin.php</file>
+    <file>includes/</file>
+    <file>admin/</file>
+    <file>frontend/</file>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/languages/*</exclude-pattern>
+    
+    <rule ref="PSR12">
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+    </rule>
+    
+    <arg value="s"/>
+    <arg name="colors"/>
+</ruleset>

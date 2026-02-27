@@ -1,0 +1,106 @@
+# Copyright (C) 2025
+# This file is distributed under the same license as the Order Management plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Order Management 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-02-26 20:30+0000\n"
+"PO-Revision-Date: 2025-02-26 20:30+0000\n"
+"Last-Translator: Nikolai Khotimskii\n"
+"Language-Team: Lithuanian\n"
+"Language: lt_LIME-Version:T\n"
+"M 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin/settings-page.php
+msgid "Save Settings"
+msgstr ""
+
+#: admin/settings-page.php
+msgid "Test Connection"
+msgstr ""
+
+#: frontend/dashboard-template.php
+msgid "Please log in to view orders."
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Please log in to view orders"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "No orders for chosen day"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Orders on %s"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Total Weight (bread): %s kg"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "! Error calculating total weight"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "No weight for product(s):"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Details"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Show"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "— %s"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Žemėlapis"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "City"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Sellers"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Chosen date: %s"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Quantity"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Product"
+msgstr ""
+
+#: frontend/shortcode-dashboard.php
+msgid "Chosen date"
+msgstr ""
+
+#: order-management-plugin.php
+msgid "Settings saved"
+msgstr ""
+
+#: order-management-plugin.php
+msgid "Connection successful"
+msgstr ""
+
+#: order-management-plugin.php
+msgid "Connection failed. Check credentials."
+msgstr ""
+
+#: order-management-plugin.php
+msgid "You do not have permission to access this page"
+msgstr ""
