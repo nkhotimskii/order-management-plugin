@@ -164,12 +164,18 @@ function omp_extract_orders($date, $delivery_type_id = null)
                 }
                 $product_data = $product_cache[$product_href]['data'];
 
+                // Check if product should be hidden
+                $is_hidden = false;
                 // Get product attributes data
                 $product_name = null;
                 $sort_number = null;
                 $is_bread = false;
                 if (!empty($product_data['attributes'])) {
                     foreach ($product_data['attributes'] as $attribute) {
+                        if ($attribute['id'] === OMP_PRODUCT_HIDDEN_FIELD_ID && !empty($attribute['value'])) {
+                            $is_hidden = true;
+                            break;
+                        }
                         if ($attribute['id'] === OMP_ARBITRARY_PRODUCT_NAME_FIELD_ID) {
                                $product_name = $attribute['value'];
                         } elseif ($attribute['id'] === OMP_PRODUCT_SORT_NUMBER_FIELD_ID) {
@@ -178,6 +184,10 @@ function omp_extract_orders($date, $delivery_type_id = null)
                             $is_bread = $attribute['value'];
                         }
                     }
+                }
+
+                if ($is_hidden) {
+                    continue;
                 }
 
                 if (!$product_name) {

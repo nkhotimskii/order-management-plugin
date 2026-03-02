@@ -83,6 +83,7 @@ define('OMP_BUS_STOP_DELIVERY_TYPE_FIELD_ID', '00790f93-deaa-11f0-0a80-0b0a00277
 define('OMP_MARKET_DELIVERY_TYPE_FIELD_ID', 'bfbf71b9-e0cd-11f0-0a80-03730011e8f2');
 define('OMP_GOOGLE_MAPS_FIELD_ID', 'b1bb251b-e8b6-11f0-0a80-18d10061576b');
 define('OMP_SELLERS_FIELD_ID', '22f8cae5-e0cd-11f0-0a80-1a1800117e82');
+define('OMP_PRODUCT_HIDDEN_FIELD_ID', '49b6a625-ec84-11f0-0a80-13a90095635e');
 
 // Frontend dashboard page URL - update this to match your WordPress page
 define('OMP_DASHBOARD_PAGE_URL', '/order-management-dashboard');
