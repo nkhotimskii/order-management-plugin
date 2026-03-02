@@ -76,13 +76,16 @@ function omp_get_dashboard(): string
         return '';
     }
 
-    // Check if user is logged in
-    if (!is_user_logged_in()) {
-        return esc_html__('Please log in to view orders', 'order-management-plugin');
-    }
+    // Check if user is logged in (optional - can be removed to allow public access)
+    // if (!is_user_logged_in()) {
+    //     return esc_html__('Please log in to view orders', 'order-management-plugin');
+    // }
 
     // Get orders data - use cache unless fresh request
     $current_user_id = get_current_user_id();
+    if (!$current_user_id) {
+        $current_user_id = 'guest';
+    }
     $orders_transient_name = $current_user_id . '_' . 'orders';
 
     // Check if this is a fresh request (Show Orders clicked)
@@ -94,6 +97,12 @@ function omp_get_dashboard(): string
 
     $cached_orders = get_transient($orders_transient_name);
 
+    // Also try shared cache
+    $shared_orders_transient_name = 'shared_orders_' . $selected_date;
+    if (!$cached_orders) {
+        $cached_orders = get_transient($shared_orders_transient_name);
+    }
+
     if ($cached_orders) {
         // Use cached data
         $orders_response = $cached_orders;
@@ -101,6 +110,8 @@ function omp_get_dashboard(): string
         // No cache - make API call
         $orders_response = omp_get_dashboard_orders($selected_date);
         set_transient($orders_transient_name, $orders_response, 3600);
+        // Save to shared cache for guest users
+        set_transient($shared_orders_transient_name, $orders_response, 3600);
     }
 
     $response_time = $orders_response['response_time'];
@@ -660,7 +671,19 @@ function omp_show_detailed_orders_data()
     $delivery_type_id = $_GET['delivery_type_id'] ?? '';
     $highlight_order_id = $_GET['order_id'] ?? '';
     $current_user_id = get_current_user_id();
+    if (!$current_user_id) {
+        $current_user_id = 'guest';
+    }
     $orders_transient_name = $current_user_id . '_' . 'orders';
+
+    // Use date-based key for shared orders cache (accessible to all users)
+    $shared_orders_transient_name = 'shared_orders_' . $selected_date;
+    $orders_response = get_transient($shared_orders_transient_name);
+
+    // Fallback to user-specific cache if shared doesn't exist
+    if (!$orders_response) {
+        $orders_response = get_transient($orders_transient_name);
+    }
 
     $cache_key = 'omp_category_' . $current_user_id . '_' . md5($selected_date . $delivery_type_id);
     $cached_html = get_transient($cache_key);
@@ -732,12 +755,12 @@ function omp_render_frontend_dashboard()
 {
     $output = "";
 
-    if (!is_user_logged_in()) {
-        return esc_html__(
-            'You must be logged in to view this page.',
-            'order-management-plugin'
-        );
-    }
+    // if (!is_user_logged_in()) {
+    //     return esc_html__(
+    //         'You must be logged in to view this page.',
+    //         'order-management-plugin'
+    //     );
+    // }
 
     $output .= datepicker_shortcode();
     $output .= omp_get_dashboard();
