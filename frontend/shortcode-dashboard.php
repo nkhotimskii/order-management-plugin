@@ -588,7 +588,7 @@ function omp_get_detailed_orders_html($orders, $highlight_order_id = '')
 
     $delivery_type_id = $orders[0]['delivery_type_id'];
 
-    $detailed_orders_html = '';
+    $detailed_orders_html = '<h3>' . esc_html__('Užsakymai', 'order-management-plugin') . '</h3>';
     $count = 1;
 
     // Determine if we should highlight an order
@@ -741,7 +741,7 @@ function omp_show_detailed_orders_data()
     if (!$current_user_id) {
         $current_user_id = 'guest';
     }
-    $orders_transient_name = $current_user_id . '_' . 'orders';
+    $orders_transient_name = $current_user_id . '_orders_' . $selected_date;
 
     // Use date-based key for shared orders cache (accessible to all users)
     $shared_orders_transient_name = 'shared_orders_' . $selected_date;
@@ -770,6 +770,11 @@ function omp_show_detailed_orders_data()
     }
 
     $orders_response = get_transient($orders_transient_name);
+
+    // Also try shared cache
+    if (!$orders_response) {
+        $orders_response = get_transient($shared_orders_transient_name);
+    }
 
     if ($orders_response) {
         $orders = [];
@@ -836,6 +841,10 @@ function omp_show_detailed_orders_data()
         $date_header = '';
     }
 
+    // Get category name for category page
+    $category_name = $orders[0]['delivery'] ?? '';
+    $category_header = $category_name ? sprintf('<h2>%s</h2>', esc_html($category_name)) : '';
+
     $time_html = sprintf('<div class="response-time"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>', $response_time);
 
     if ($delivery_type_id === \OMP_MARKET_DELIVERY_TYPE_FIELD_ID) {
@@ -858,7 +867,7 @@ function omp_show_detailed_orders_data()
         );
     }
 
-    $output = $date_header . $time_html . $total_positions_html . $orders_html . $detailed_orders_html . $scroll_script;
+    $output = $category_header . $date_header . $time_html . $total_positions_html . $orders_html . $detailed_orders_html . $scroll_script;
 
     set_transient($cache_key, $output, 300);
 
