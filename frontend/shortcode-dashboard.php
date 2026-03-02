@@ -113,7 +113,7 @@ function omp_get_dashboard(): string
     }
 
     $time = sprintf(
-        esc_html__('Orders on %s', 'order-management-plugin'),
+        '<strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s',
         $response_time
     );
 
@@ -699,7 +699,7 @@ function omp_show_detailed_orders_data()
     $response_time = $orders_response['response_time'];
 
     $selected_date_html = sprintf('<p>' . esc_html__('Chosen date: %s', 'order-management-plugin') . '</p>', $selected_date);
-    $time_html = sprintf(esc_html__('Orders on %s', 'order-management-plugin'), $response_time);
+    $time_html = sprintf('<strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s', $response_time);
 
     if ($delivery_type_id === \OMP_MARKET_DELIVERY_TYPE_FIELD_ID) {
         $total_positions_html = omp_generate_market_product_table($orders);
