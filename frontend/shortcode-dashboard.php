@@ -127,39 +127,48 @@ function omp_get_dashboard(): string
     }
 
     $time = sprintf(
-        '<strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s',
+        '<div class="response-time"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>',
         $response_time
     );
 
     // Format selected date as weekday, month, day
     $date_obj = DateTime::createFromFormat('Y-m-d', $selected_date);
     if ($date_obj) {
-        $day_names_lt = [
-            1 => 'Pirmadienis',
-            2 => 'Antradienis',
-            3 => 'Trečiadienis',
-            4 => 'Ketvertadienis',
-            5 => 'Penktadienis',
-            6 => 'Šeštadienis',
-            7 => 'Sekmadienis'
-        ];
-        $month_names_lt = [
-            1 => 'Sausis',
-            2 => 'Vasaris',
-            3 => 'Kovas',
-            4 => 'Balandis',
-            5 => 'Gegužė',
-            6 => 'Birželis',
-            7 => 'Liepa',
-            8 => 'Rugpjūtis',
-            9 => 'Rugsėjis',
-            10 => 'Spalis',
-            11 => 'Lapkritis',
-            12 => 'Gruodis'
-        ];
-        $weekday = $day_names_lt[(int) $date_obj->format('N')];
-        $month = $month_names_lt[(int) $date_obj->format('n')];
-        $day = $date_obj->format('d');
+        $locale = get_locale();
+        $is_lithuanian = strpos($locale, 'lt') === 0;
+
+        if ($is_lithuanian) {
+            $day_names = [
+                1 => 'Pirmadienis',
+                2 => 'Antradienis',
+                3 => 'Trečiadienis',
+                4 => 'Ketvertadienis',
+                5 => 'Penktadienis',
+                6 => 'Šeštadienis',
+                7 => 'Sekmadienis'
+            ];
+            $month_names = [
+                1 => 'sausis',
+                2 => 'vasaris',
+                3 => 'kovas',
+                4 => 'balandis',
+                5 => 'gegužė',
+                6 => 'birželis',
+                7 => 'liepa',
+                8 => 'rugpjūtis',
+                9 => 'rugsėjis',
+                10 => 'spalis',
+                11 => 'lapkritis',
+                12 => 'gruodis'
+            ];
+            $weekday = $day_names[(int) $date_obj->format('N')];
+            $month = $month_names[(int) $date_obj->format('n')];
+        } else {
+            $weekday = $date_obj->format('l');
+            $month = $date_obj->format('F');
+            $month = strtolower($month);
+        }
+        $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
             '<h2>%s, %s %s</h2>',
             $weekday,
@@ -426,6 +435,19 @@ function omp_get_orders_html(
 
     // Generate table for each delivery type
     foreach ($orders_by_delivery_type as $delivery_type_id => $delivery_type_orders) {
+        // Calculate total bread weight for this category
+        $total_bread_weight = 0;
+        foreach ($delivery_type_orders as $order) {
+            foreach ($order['positions'] as $position) {
+                if (!empty($position['is_bread']) && !empty($position['weight'])) {
+                    $total_bread_weight += $position['weight'];
+                }
+            }
+        }
+        $total_bread_weight_html = $total_bread_weight > 0 
+            ? sprintf(' <span class="category-bread-weight">(%.2f kg)</span>', $total_bread_weight) 
+            : '';
+
         $table_class = 'order-management-dashboard';
         $orders_table_fields = $orders_tables_fields[$delivery_type_id] ?? $orders_tables_fields['other_tables'];
 
@@ -436,7 +458,8 @@ function omp_get_orders_html(
             'orders' => $delivery_type_orders,
             'fields' => $orders_table_fields,
             'details_knob' => $details_knob,
-            'selected_date' => $selected_date
+            'selected_date' => $selected_date,
+            'total_bread_weight_html' => $total_bread_weight_html
             ],
             $table_class
         );
@@ -463,6 +486,7 @@ function omp_generate_product_table($product_data, $table_class)
     $fields = $product_data['fields'];
     $details_knob = $product_data['details_knob'] ?? true;
     $selected_date = $product_data['selected_date'];
+    $total_bread_weight_html = $product_data['total_bread_weight_html'] ?? '';
 
     // Create URL for category details
     $category_url = add_query_arg(
@@ -473,9 +497,10 @@ function omp_generate_product_table($product_data, $table_class)
     );
 
     $table_html = sprintf(
-        '<h3><a href="%s">%s</a></h3>',
+        '<h3><a href="%s">%s</a>%s</h3>',
         esc_url($category_url),
-        esc_html($delivery_type_name)
+        esc_html($delivery_type_name),
+        $total_bread_weight_html
     );
 
     $table_html .= sprintf(
@@ -766,32 +791,41 @@ function omp_show_detailed_orders_data()
     // Format selected date as weekday, month, day
     $date_obj = DateTime::createFromFormat('Y-m-d', $selected_date);
     if ($date_obj) {
-        $day_names_lt = [
-            1 => 'Pirmadienis',
-            2 => 'Antradienis',
-            3 => 'Trečiadienis',
-            4 => 'Ketvertadienis',
-            5 => 'Penktadienis',
-            6 => 'Šeštadienis',
-            7 => 'Sekmadienis'
-        ];
-        $month_names_lt = [
-            1 => 'Sausis',
-            2 => 'Vasaris',
-            3 => 'Kovas',
-            4 => 'Balandis',
-            5 => 'Gegužė',
-            6 => 'Birželis',
-            7 => 'Liepa',
-            8 => 'Rugpjūtis',
-            9 => 'Rugsėjis',
-            10 => 'Spalis',
-            11 => 'Lapkritis',
-            12 => 'Gruodis'
-        ];
-        $weekday = $day_names_lt[(int) $date_obj->format('N')];
-        $month = $month_names_lt[(int) $date_obj->format('n')];
-        $day = $date_obj->format('d');
+        $locale = get_locale();
+        $is_lithuanian = strpos($locale, 'lt') === 0;
+
+        if ($is_lithuanian) {
+            $day_names = [
+                1 => 'Pirmadienis',
+                2 => 'Antradienis',
+                3 => 'Trečiadienis',
+                4 => 'Ketvertadienis',
+                5 => 'Penktadienis',
+                6 => 'Šeštadienis',
+                7 => 'Sekmadienis'
+            ];
+            $month_names = [
+                1 => 'sausis',
+                2 => 'vasaris',
+                3 => 'kovas',
+                4 => 'balandis',
+                5 => 'gegužė',
+                6 => 'birželis',
+                7 => 'liepa',
+                8 => 'rugpjūtis',
+                9 => 'rugsėjis',
+                10 => 'spalis',
+                11 => 'lapkritis',
+                12 => 'gruodis'
+            ];
+            $weekday = $day_names[(int) $date_obj->format('N')];
+            $month = $month_names[(int) $date_obj->format('n')];
+        } else {
+            $weekday = $date_obj->format('l');
+            $month = $date_obj->format('F');
+            $month = strtolower($month);
+        }
+        $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
             '<h2>%s, %s %s</h2>',
             $weekday,
@@ -802,7 +836,7 @@ function omp_show_detailed_orders_data()
         $date_header = '';
     }
 
-    $time_html = sprintf('<strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s', $response_time);
+    $time_html = sprintf('<div class="response-time"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>', $response_time);
 
     if ($delivery_type_id === \OMP_MARKET_DELIVERY_TYPE_FIELD_ID) {
         $total_positions_html = omp_generate_market_product_table($orders);
@@ -887,7 +921,7 @@ function omp_get_weekly_orders()
         $day = clone $monday;
         $day->modify('+' . $i . ' days');
 
-        $date_str = $day->format('m.d');
+        $date_str = ltrim($day->format('m.d'), '0');
         $date_param = $day->format('Y-m-d');
         $day_name = $day_names_lt[$i + 1];
 
