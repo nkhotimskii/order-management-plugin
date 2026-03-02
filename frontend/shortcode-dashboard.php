@@ -236,9 +236,15 @@ function omp_generate_total_positions_html(array $total_positions): string
 function omp_generate_market_product_table($orders)
 {
     $total_bread_weight = 0;
+    $total_order_amount = 0;
     $product_data = [];
 
     foreach ($orders as $order) {
+        // Add order amount
+        if (!empty($order['order_amount'])) {
+            $total_order_amount += (float) $order['order_amount'];
+        }
+
         foreach ($order['positions'] as $position) {
             $is_bread = $position['is_bread'];
 
@@ -277,7 +283,14 @@ function omp_generate_market_product_table($orders)
         }
     }
 
-    $product_table_html = '<table class="product-table market">';
+    // Add totals to table header/caption
+    $table_caption = sprintf(
+        '<caption>Total: %s kg | %s</caption>',
+        number_format($total_bread_weight, 2),
+        number_format($total_order_amount, 2)
+    );
+
+    $product_table_html = '<table class="product-table market">' . $table_caption;
     $product_table_html .= '
         <colgroup>
             <col class="quantity-column"></col>
