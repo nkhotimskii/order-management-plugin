@@ -378,6 +378,9 @@ function omp_generate_product_table($product_data, $table_class)
                     break;
                 case 'Counterparty':
                     $cell_value = $order['counterparty'] ?? '';
+                    if (!empty($order['pickup_shop'])) {
+                        $cell_value = sprintf('<span style="color: #cccccc;">%s</span>', $cell_value);
+                    }
                     break;
                 case 'Tracking Number':
                        $cell_value = $order['tracking_number'] ?? '';
@@ -468,8 +471,10 @@ function omp_get_detailed_orders_html($orders, $highlight_order_id = '')
         }
 
         if (!empty($order['counterparty'])) {
+            $counterparty_style = !empty($order['pickup_shop']) ? ' style="color: #cccccc;"' : '';
             $detailed_orders_html .= sprintf(
-                '<span class="detailed-orders counterparty">%s </span>',
+                '<span class="detailed-orders counterparty"%s>%s </span>',
+                $counterparty_style,
                 $order['counterparty']
             );
         }
