@@ -53,6 +53,9 @@ function datepicker_shortcode(): string
         $redirect_url = add_query_arg('selected_date', $date, $_SERVER['REQUEST_URI']);
         wp_redirect($redirect_url);
         exit;
+    } elseif (isset($_GET['selected_date'])) {
+        $date = sanitize_text_field($_GET['selected_date']);
+        setcookie('selected_date', $date, time() + 86400, '/');
     } elseif (isset($_COOKIE['selected_date'])) {
         $date = sanitize_text_field($_COOKIE['selected_date']);
     }
@@ -86,7 +89,7 @@ function omp_get_dashboard(): string
     if (!$current_user_id) {
         $current_user_id = 'guest';
     }
-    $orders_transient_name = $current_user_id . '_' . 'orders';
+    $orders_transient_name = $current_user_id . '_orders_' . $selected_date;
 
     // Check if this is a fresh request (Show Orders clicked)
     $is_fresh = isset($_COOKIE['fresh_request']);
@@ -128,6 +131,45 @@ function omp_get_dashboard(): string
         $response_time
     );
 
+    // Format selected date as weekday, month, day
+    $date_obj = DateTime::createFromFormat('Y-m-d', $selected_date);
+    if ($date_obj) {
+        $day_names_lt = [
+            1 => 'Pirmadienis',
+            2 => 'Antradienis',
+            3 => 'Trečiadienis',
+            4 => 'Ketvertadienis',
+            5 => 'Penktadienis',
+            6 => 'Šeštadienis',
+            7 => 'Sekmadienis'
+        ];
+        $month_names_lt = [
+            1 => 'Sausis',
+            2 => 'Vasaris',
+            3 => 'Kovas',
+            4 => 'Balandis',
+            5 => 'Gegužė',
+            6 => 'Birželis',
+            7 => 'Liepa',
+            8 => 'Rugpjūtis',
+            9 => 'Rugsėjis',
+            10 => 'Spalis',
+            11 => 'Lapkritis',
+            12 => 'Gruodis'
+        ];
+        $weekday = $day_names_lt[(int) $date_obj->format('N')];
+        $month = $month_names_lt[(int) $date_obj->format('n')];
+        $day = $date_obj->format('d');
+        $date_header = sprintf(
+            '<h2>%s, %s %s</h2>',
+            $weekday,
+            $month,
+            $day
+        );
+    } else {
+        $date_header = '';
+    }
+
     $total_positions_html = omp_get_total_positions_html($total_positions_data);
     $orders_html = omp_get_orders_html($orders, $selected_date);
 
@@ -143,7 +185,7 @@ function omp_get_dashboard(): string
         });
     </script>';
 
-    return $time . $total_positions_html . $orders_html . $script;
+    return $date_header . $time . $total_positions_html . $orders_html . $script;
 }
 
 function omp_generate_total_positions_html(array $total_positions): string
@@ -721,7 +763,45 @@ function omp_show_detailed_orders_data()
 
     $response_time = $orders_response['response_time'];
 
-    $selected_date_html = sprintf('<p>' . esc_html__('Chosen date: %s', 'order-management-plugin') . '</p>', $selected_date);
+    // Format selected date as weekday, month, day
+    $date_obj = DateTime::createFromFormat('Y-m-d', $selected_date);
+    if ($date_obj) {
+        $day_names_lt = [
+            1 => 'Pirmadienis',
+            2 => 'Antradienis',
+            3 => 'Trečiadienis',
+            4 => 'Ketvertadienis',
+            5 => 'Penktadienis',
+            6 => 'Šeštadienis',
+            7 => 'Sekmadienis'
+        ];
+        $month_names_lt = [
+            1 => 'Sausis',
+            2 => 'Vasaris',
+            3 => 'Kovas',
+            4 => 'Balandis',
+            5 => 'Gegužė',
+            6 => 'Birželis',
+            7 => 'Liepa',
+            8 => 'Rugpjūtis',
+            9 => 'Rugsėjis',
+            10 => 'Spalis',
+            11 => 'Lapkritis',
+            12 => 'Gruodis'
+        ];
+        $weekday = $day_names_lt[(int) $date_obj->format('N')];
+        $month = $month_names_lt[(int) $date_obj->format('n')];
+        $day = $date_obj->format('d');
+        $date_header = sprintf(
+            '<h2>%s, %s %s</h2>',
+            $weekday,
+            $month,
+            $day
+        );
+    } else {
+        $date_header = '';
+    }
+
     $time_html = sprintf('<strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s', $response_time);
 
     if ($delivery_type_id === \OMP_MARKET_DELIVERY_TYPE_FIELD_ID) {
@@ -744,7 +824,7 @@ function omp_show_detailed_orders_data()
         );
     }
 
-    $output = $selected_date_html . $time_html . $total_positions_html . $orders_html . $detailed_orders_html . $scroll_script;
+    $output = $date_header . $time_html . $total_positions_html . $orders_html . $detailed_orders_html . $scroll_script;
 
     set_transient($cache_key, $output, 300);
 
@@ -777,6 +857,49 @@ function omp_register_shortcodes()
     add_shortcode('datepicker', 'datepicker_shortcode');
     add_shortcode('dashboard', 'omp_get_dashboard');
     add_shortcode('detailed_orders_data', 'omp_show_detailed_orders_data');
+    add_shortcode('weekly_orders', 'omp_get_weekly_orders');
 }
 
 add_action('init', 'omp_register_shortcodes');
+
+function omp_get_weekly_orders()
+{
+    $day_names_lt = [
+        1 => 'Pirmadienis',
+        2 => 'Antradienis',
+        3 => 'Trečiadienis',
+        4 => 'Ketvertadienis',
+        5 => 'Penktadienis',
+        6 => 'Šeštadienis',
+        7 => 'Sekmadienis'
+    ];
+
+    $today = new DateTime();
+    $today_day_of_week = (int) $today->format('N');
+
+    $monday = clone $today;
+    $monday->modify('-' . ($today_day_of_week - 1) . ' days');
+
+    $dashboard_url = home_url('/order-management-dashboard/');
+
+    $html = '<ul>';
+    for ($i = 0; $i < 7; $i++) {
+        $day = clone $monday;
+        $day->modify('+' . $i . ' days');
+
+        $date_str = $day->format('m.d');
+        $date_param = $day->format('Y-m-d');
+        $day_name = $day_names_lt[$i + 1];
+
+        $html .= sprintf(
+            '<li><a href="%s?selected_date=%s">%s (%s)</a></li>',
+            $dashboard_url,
+            $date_param,
+            $day_name,
+            $date_str
+        );
+    }
+    $html .= '</ul>';
+
+    return $html;
+}
