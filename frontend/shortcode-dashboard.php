@@ -171,6 +171,139 @@ function omp_generate_total_positions_html(array $total_positions): string
     return $total_positions_html;
 }
 
+function omp_generate_market_product_table($orders)
+{
+    $total_bread_weight = 0;
+    $product_data = [];
+
+    foreach ($orders as $order) {
+        foreach ($order['positions'] as $position) {
+            $is_bread = $position['is_bread'];
+
+            if ($is_bread) {
+                $total_bread_weight += $position['weight'];
+            }
+
+            if (!isset($product_data[$position['product']])) {
+                $product_data[$position['product']] = [
+                    'total_quantity' => $position['quantity'],
+                    'is_bread' => $is_bread
+                ];
+            } else {
+                $product_data[$position['product']]['total_quantity'] += $position['quantity'];
+            }
+        }
+
+        if (!$order['pickup_shop']) {
+            foreach ($order['positions'] as $position) {
+                if (!isset($product_data[$position['product']][$order['counterparty']])) {
+                    $product_data[$position['product']][$order['counterparty']] = $position['quantity'];
+                } else {
+                    $product_data[$position['product']][$order['counterparty']] += $position['quantity'];
+                }
+            }
+        }
+    }
+
+    $counterparties = [];
+    foreach ($product_data as $product) {
+        foreach (array_keys($product) as $product_key) {
+            if ((!in_array($product_key, ['total_quantity', 'is_bread']))
+                && (!in_array($product_key, $counterparties))) {
+                $counterparties[] = $product_key;
+            }
+        }
+    }
+
+    $product_table_html = '<table class="product-table market">';
+    $product_table_html .= '
+        <colgroup>
+            <col class="quantity-column"></col>
+            <col class="product-column"></col>
+    ';
+
+    foreach ($counterparties as $counterparty) {
+        $product_table_html .= '<col class="counterparty quantity-column"></col>';
+    }
+
+    $product_table_html .= '</colgroup>';
+    $product_table_html .= '
+        <thead>
+            <tr>
+                <th>' . esc_html__('Quantity', 'order-management-plugin') . '</th>
+                <th>' . esc_html__('Product', 'order-management-plugin') . '</th>
+    ';
+
+    foreach ($counterparties as $counterparty) {
+        $product_table_html .= sprintf(
+            '<th>%s</th>',
+            esc_html($counterparty)
+        );
+    }
+
+    $product_table_html .= '</tr></thead>';
+
+    foreach ($product_data as $product) {
+        $create_bread_table = true;
+        $create_non_bread_table = true;
+        if (!$create_bread_table && !$create_non_bread_table) {
+            break;
+        }
+        if ($product['is_bread'] && $create_bread_table) {
+            $bread_table = $product_table_html;
+            $create_bread_table = false;
+        } elseif (!$product['is_bread'] && $create_non_bread_table) {
+            $non_bread_table = $product_table_html;
+            $create_non_bread_table = false;
+        }
+    }
+
+    $add_product_row = function($product_table, $product_data, $product, $counterparties) {
+        $product_table .= sprintf(
+            '<tr><td>%s</td><td>%s</td>',
+            $product_data[$product]['total_quantity'],
+            esc_html($product)
+        );
+
+        foreach ($counterparties as $counterparty) {
+            $product_table .= sprintf(
+                '<td>%s</td>',
+                $product_data[$product][$counterparty] ?? '.'
+            );
+        }
+
+        $product_table .= '</tr>';
+        return $product_table;
+    };
+
+    foreach (array_keys($product_data) as $product) {
+        if ($product_data[$product]['is_bread']) {
+            $bread_table = $add_product_row($bread_table, $product_data, $product, $counterparties);
+        } else {
+            $non_bread_table = $add_product_row($non_bread_table, $product_data, $product, $counterparties);
+        }
+    }
+
+    $total_bread_weight_html = sprintf(
+        '<p class="total-bread-weight">' . esc_html__('Total Weight (bread): %s kg', 'order-management-plugin') . '</p>',
+        number_format($total_bread_weight, 2)
+    );
+
+    $market_products_table = '';
+
+    if (isset($bread_table)) {
+        $bread_table .= '</table>';
+        $market_products_table .= $bread_table;
+    }
+
+    if (isset($non_bread_table)) {
+        $non_bread_table .= '</table>';
+        $market_products_table .= $non_bread_table;
+    }
+
+    return $total_bread_weight_html . $market_products_table;
+}
+
 function omp_get_total_positions_html(array $total_positions_data): string
 {
     $total_bread_weight = $total_positions_data['total_bread_weight'];
@@ -257,52 +390,6 @@ function omp_get_orders_html(
     }
 
     return $orders_html;
-}
-
-function omp_generate_market_product_table($orders)
-{
-
-    $products = [];
-
-    foreach ($orders as $order) {
-        $positions = $order['positions'] ?? [];
-        foreach ($positions as $position) {
-            $product_name = $position['product'] ?? '';
-            $quantity = $position['quantity'] ?? 1;
-            if (isset($products[$product_name])) {
-                $products[$product_name] += $quantity;
-            } else {
-                $products[$product_name] = $quantity;
-            }
-        }
-    }
-
-    $table_html = '<table class="order-management-dashboard product-table">';
-    $table_html .= '
-		<colgroup>
-			<col class="quantity-column" />
-			<col class="product-column" />
-		</colgroup>
-	';
-    $table_html .= '
-		<tr>
-			<th><strong>' . esc_html__('Quantity', 'order-management-plugin') . '</strong></th>
-			<th><strong>' . esc_html__('Product', 'order-management-plugin') . '</strong></th>
-		</tr>
-	';
-
-    arsort($products);
-    foreach ($products as $product => $quantity) {
-        $table_html .= sprintf(
-            '<tr><td><strong>%s</strong></td><td>%s</td></tr>',
-            $quantity,
-            esc_html($product)
-        );
-    }
-
-    $table_html .= '</table>';
-
-    return $table_html;
 }
 
 function add_product_row($quantity, $product)
