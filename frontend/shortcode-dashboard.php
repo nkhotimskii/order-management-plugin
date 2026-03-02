@@ -170,7 +170,7 @@ function omp_get_dashboard(): string
         }
         $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
-            '<h2>%s, %s %s</h2>',
+            '<h2 class="center">%s, %s %s</h2>',
             $weekday,
             $month,
             $day
@@ -496,12 +496,16 @@ function omp_generate_product_table($product_data, $table_class)
         ]
     );
 
-    $table_html = sprintf(
-        '<h3><a href="%s">%s</a>%s</h3>',
-        esc_url($category_url),
-        esc_html($delivery_type_name),
-        $total_bread_weight_html
-    );
+    // Only show category header on main dashboard, not on category detail page
+    $table_html = '';
+    if ($details_knob) {
+        $table_html = sprintf(
+            '<h3><a href="%s">%s</a>%s</h3>',
+            esc_url($category_url),
+            esc_html($delivery_type_name),
+            $total_bread_weight_html
+        );
+    }
 
     $table_html .= sprintf(
         '<table class="%s">',
@@ -588,7 +592,7 @@ function omp_get_detailed_orders_html($orders, $highlight_order_id = '')
 
     $delivery_type_id = $orders[0]['delivery_type_id'];
 
-    $detailed_orders_html = '<h3>' . esc_html__('Užsakymai', 'order-management-plugin') . '</h3>';
+    $detailed_orders_html = '';
     $count = 1;
 
     // Determine if we should highlight an order
@@ -832,7 +836,7 @@ function omp_show_detailed_orders_data()
         }
         $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
-            '<h2>%s, %s %s</h2>',
+            '<h2 class="center">%s, %s %s</h2>',
             $weekday,
             $month,
             $day
@@ -855,6 +859,7 @@ function omp_show_detailed_orders_data()
     }
 
     $orders_html = omp_get_orders_html($orders, $selected_date, false);
+    $orders_with_header = '<h3 class="orders-title">' . esc_html__('Užsakymai', 'order-management-plugin') . '</h3>' . $orders_html;
     $detailed_orders_html = omp_get_detailed_orders_html($orders, $highlight_order_id);
 
     // Add scroll script if highlight_order_id is present
@@ -867,7 +872,7 @@ function omp_show_detailed_orders_data()
         );
     }
 
-    $output = $category_header . $date_header . $time_html . $total_positions_html . $orders_html . $detailed_orders_html . $scroll_script;
+    $output = $date_header . $time_html . $category_header . $total_positions_html . $orders_with_header . $detailed_orders_html . $scroll_script;
 
     set_transient($cache_key, $output, 300);
 

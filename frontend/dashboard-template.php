@@ -70,9 +70,11 @@ if ($has_header) {
         .omp-dashboard input[type="submit"]:hover { background: #135e96; }
         .omp-dashboard .total-bread-weight { font-size: 16px; margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #2271b1; }
         .omp-dashboard .back-link { display: inline-block; margin-bottom: 15px; }
-        .total-bread-weight { font-size: 25px; }
-        .detailed-order-data { margin-top: 50px; margin-bottom: 50px; }
-        .product-table { border: 1px solid; border-collapse: collapse; margin-top: 15px; }
+        .omp-dashboard h2 { text-align: left; }
+        .omp-dashboard h2.center { text-align: center; }
+        .omp-dashboard .response-time { text-align: center; font-size: 14px; margin-bottom: 20px; }
+        .omp-dashboard h3.orders-title { font-size: 24px; margin-top: 30px; margin-bottom: 10px; }
+        .product-table { border: 1px solid; border-collapse: collapse; margin-top: 15px; margin-bottom: 30px; }
         th { border: 1px solid; border-collapse: collapse; }
         td { border: 1px solid; border-collapse: collapse; }
         .product-table.pickup-shop { margin-bottom: 50px; }
