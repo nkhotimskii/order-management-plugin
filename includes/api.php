@@ -2,6 +2,8 @@
 
 defined('ABSPATH') || exit;
 
+use function OrderManagementPlugin\omp_get_encryption_key;
+
 // Token expiry buffer in seconds
 define('OMP_TOKEN_EXPIRY_BUFFER', 60);
 
