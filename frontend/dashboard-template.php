@@ -83,6 +83,7 @@ if (!is_user_logged_in()) {
         .detailed-orders.sellers { margin-bottom: 1px; }
         .comment { font-style: italic; }
         .dashboard-order { cursor: pointer; }
+        .clickable-row, .clickable-row td { cursor: pointer !important; }
         .detailed-orders { margin-top: 20px; }
         .detailed-orders.pickup-shop { margin-bottom: 10px; }
         .detailed-orders.order-number { font-weight: bold; }

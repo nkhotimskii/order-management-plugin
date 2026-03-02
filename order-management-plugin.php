@@ -93,16 +93,12 @@ define(
     'OMP_ORDERS_TABLES_FIELDS',
     [
     OMP_CAFE_DELIVERY_TYPE_FIELD_ID => [
-        'Quantity',
-        'Product',
         'Counterparty',
         'Pickup Shop',
         'Order Amount',
         'Status'
     ],
     OMP_PARCEL_TERMINAL_DELIVERY_TYPE_FIELD_ID => [
-        'Quantity',
-        'Product',
         'Order Number',
         'Counterparty',
         'Tracking Number',
@@ -110,8 +106,6 @@ define(
         'Status'
     ],
     OMP_BUS_STOP_DELIVERY_TYPE_FIELD_ID => [
-        'Quantity',
-        'Product',
         'Order Number',
         'Counterparty',
         'City',
@@ -120,8 +114,6 @@ define(
         'Status'
     ],
     OMP_MARKET_DELIVERY_TYPE_FIELD_ID => [
-        'Quantity',
-        'Product',
         'Counterparty',
         'Pickup Shop',
         'Sellers',
@@ -129,8 +121,6 @@ define(
         'Status'
     ],
     'other_tables' => [
-        'Quantity',
-        'Product',
         'Counterparty',
         'Order Amount',
         'Status'

@@ -120,7 +120,19 @@ function omp_get_dashboard(): string
     $total_positions_html = omp_get_total_positions_html($total_positions_data);
     $orders_html = omp_get_orders_html($orders, $selected_date);
 
-    return $time . $total_positions_html . $orders_html;
+    $script = '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".clickable-row").forEach(function(row) {
+                row.addEventListener("click", function(e) {
+                    if (!e.target.closest("a")) {
+                        window.location.href = row.dataset.href;
+                    }
+                });
+            });
+        });
+    </script>';
+
+    return $time . $total_positions_html . $orders_html . $script;
 }
 
 function omp_generate_total_positions_html(array $total_positions): string
@@ -345,29 +357,24 @@ function omp_generate_product_table($product_data, $table_class)
             esc_html__($field, 'order-management-plugin')
         );
     }
-    if ($details_knob) {
-        $table_html .= '<th><strong>' . esc_html__('Details', 'order-management-plugin') . '</strong></th>';
-    }
     $table_html .= '</tr>';
 
     // Add table rows
     foreach ($orders as $order) {
-        $table_html .= '<tr>';
+        $order_id = $order['id'] ?? '';
+        $order_link = add_query_arg(
+            [
+            'selected_date' => $selected_date,
+            'delivery_type_id' => $delivery_type_id,
+            'order_id' => $order_id
+            ]
+        ) . '#order-' . $order_id;
+        $table_html .= sprintf('<tr class="clickable-row" data-href="%s">', esc_url($order_link));
         foreach ($fields as $field) {
             $cell_value = '';
             switch ($field) {
                 case 'Order Number':
                     $cell_value = $order['order_number'] ?? '';
-                    break;
-                case 'Quantity':
-                    $cell_value = array_sum(array_column($order['positions'] ?? [], 'quantity'));
-                    break;
-                case 'Product':
-                    $products = array_column($order['positions'] ?? [], 'product');
-                    $cell_value = implode(', ', array_slice($products, 0, 2));
-                    if (count($products) > 2) {
-                        $cell_value .= '...';
-                    }
                     break;
                 case 'Counterparty':
                     $cell_value = $order['counterparty'] ?? '';
@@ -398,20 +405,6 @@ function omp_generate_product_table($product_data, $table_class)
                     break;
             }
             $table_html .= sprintf('<td>%s</td>', $cell_value);
-        }
-
-        if ($details_knob) {
-            $details_url = add_query_arg(
-                [
-                'selected_date' => $selected_date,
-                'delivery_type_id' => $delivery_type_id,
-                'order_id' => $order['id'] ?? ''
-                ]
-            );
-            $table_html .= sprintf(
-                '<td><a href="%s">' . esc_html__('Show', 'order-management-plugin') . '</a></td>',
-                esc_url($details_url)
-            );
         }
 
         $table_html .= '</tr>';
@@ -579,6 +572,16 @@ function omp_show_detailed_orders_data()
 
     $cache_key = 'omp_category_' . $current_user_id . '_' . md5($selected_date . $delivery_type_id);
     $cached_html = get_transient($cache_key);
+
+    // If we have cached HTML but need to scroll to an order, return cached HTML with scroll script
+    if ($cached_html !== false && !empty($highlight_order_id)) {
+        $scroll_script = sprintf(
+            '<script>document.addEventListener("DOMContentLoaded", function() { setTimeout(function() { var targetId = "order-%s"; var el = document.getElementById(targetId); if(el) { el.scrollIntoView({behavior: "smooth", block: "center"}); } else { var headers = document.querySelectorAll("[id^=\"order-header-%s\"]"); if(headers.length > 0) { headers[0].scrollIntoView({behavior: "smooth", block: "center"}); } } }, 100); });</script>',
+            esc_js($highlight_order_id),
+            esc_js($highlight_order_id)
+        );
+        return $cached_html . $scroll_script;
+    }
 
     if ($cached_html !== false) {
         return $cached_html;

@@ -68,6 +68,12 @@ td {
 .dashboard-order {
     cursor: pointer;
 }
+
+.clickable-row,
+.clickable-row td {
+    cursor: pointer !important;
+}
+
 /* Category links in dashboard */
 h3 a {
     color: #2271b1;
