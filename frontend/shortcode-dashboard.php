@@ -238,6 +238,7 @@ function omp_generate_market_product_table($orders)
     $total_bread_weight = 0;
     $total_order_amount = 0;
     $product_data = [];
+    $counterparty_totals = [];
 
     foreach ($orders as $order) {
         // Add order amount
@@ -245,11 +246,30 @@ function omp_generate_market_product_table($orders)
             $total_order_amount += (float) $order['order_amount'];
         }
 
+        // Track counterparty order amounts
+        $counterparty = $order['counterparty'] ?? '';
+        if (!empty($counterparty) && !empty($order['order_amount'])) {
+            if (!isset($counterparty_totals[$counterparty])) {
+                $counterparty_totals[$counterparty] = [
+                    'weight' => 0,
+                    'amount' => 0
+                ];
+            }
+            $counterparty_totals[$counterparty]['amount'] += (float) $order['order_amount'];
+        }
+
         foreach ($order['positions'] as $position) {
             $is_bread = $position['is_bread'];
 
             if ($is_bread) {
                 $total_bread_weight += $position['weight'];
+                // Add to counterparty weight if we have a counterparty
+                if (!empty($counterparty)) {
+                    if (!isset($counterparty_totals[$counterparty])) {
+                        $counterparty_totals[$counterparty] = ['weight' => 0, 'amount' => 0];
+                    }
+                    $counterparty_totals[$counterparty]['weight'] += $position['weight'];
+                }
             }
 
             if (!isset($product_data[$position['product']])) {
@@ -284,13 +304,13 @@ function omp_generate_market_product_table($orders)
     }
 
     // Add totals to table header/caption
-    $table_caption = sprintf(
-        '<caption>Total: %s kg | %s</caption>',
-        number_format($total_bread_weight, 2),
-        number_format($total_order_amount, 2)
-    );
+    // $table_caption = sprintf(
+    //     '<caption>Total: %s kg | %s</caption>',
+    //     number_format($total_bread_weight, 2),
+    //     number_format($total_order_amount, 2)
+    // );
 
-    $product_table_html = '<table class="product-table market">' . $table_caption;
+    $product_table_html = '<table class="product-table market">'; // . $table_caption
     $product_table_html .= '
         <colgroup>
             <col class="quantity-column"></col>
@@ -310,9 +330,12 @@ function omp_generate_market_product_table($orders)
     ';
 
     foreach ($counterparties as $counterparty) {
+        $totals = $counterparty_totals[$counterparty] ?? ['weight' => 0, 'amount' => 0];
         $product_table_html .= sprintf(
-            '<th>%s</th>',
-            esc_html($counterparty)
+            '<th>%s<br><small>%s kg<br>%s €</small></th>',
+            esc_html($counterparty),
+            number_format($totals['weight'], 2),
+            number_format($totals['amount'], 2)
         );
     }
 
