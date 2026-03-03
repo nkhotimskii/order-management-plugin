@@ -57,13 +57,13 @@ if ($has_header) {
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1d2327; }
-        .omp-dashboard { max-width: 1400px !important; margin: 0 auto !important; padding: 80px 20px 30px !important; background: #fff !important; min-height: 100vh !important; position: relative !important; z-index: 99999 !important; }
+        .omp-dashboard { max-width: 1400px !important; margin: 0 auto !important; padding: 80px 20px 30px !important; background: #fff !important; min-height: 100vh !important; position: relative !important; z-index: 99999 !important; overflow-x: auto !important; }
         .omp-dashboard h1 { font-size: 28px; padding-bottom: 10px; border-bottom: 2px solid #2271b1; margin-bottom: 20px; }
         .omp-dashboard h2 { margin-top: 30px; }
         .omp-dashboard h2:first-child { margin-top: 0; }
         .omp-dashboard form { margin-top: 20px; }
         .omp-dashboard h3 { font-size: 18px; margin-top: 25px; margin-bottom: 10px; }
-        .omp-dashboard table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        .omp-dashboard table { width: 100% !important; max-width: 1400px !important; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; table-layout: auto; }
         .omp-dashboard th, .omp-dashboard td { padding: 10px 12px; text-align: left; border: 1px solid #dcdcde; }
         .omp-dashboard th { background: #f0f0f1; font-weight: 600; }
         .omp-dashboard a { color: #2271b1; text-decoration: none; }
@@ -105,9 +105,9 @@ if ($has_header) {
 }
 
 if ($has_header) {
-    echo '<div class="omp-dashboard" style="padding-top: 50px;">';
+    echo '<div class="omp-dashboard" style="padding-top: 50px; max-width: 1400px; margin: 0 auto; width: 100%;">';
 } else {
-    echo '<div class="omp-dashboard" style="padding-top: 50px;">';
+    echo '<div class="omp-dashboard" style="padding-top: 50px; max-width: 1400px; margin: 0 auto; width: 100%;">';
 }
 
     echo $content;
