@@ -127,7 +127,7 @@ function omp_get_dashboard(): string
     }
 
     $time = sprintf(
-        '<div class="response-time"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>',
+        '<div class="response-time" style="text-align: center;"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>',
         $response_time
     );
 
@@ -170,7 +170,7 @@ function omp_get_dashboard(): string
         }
         $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
-            '<h2 class="center">%s, %s %s</h2>',
+            '<h2 class="center" style="text-align: center !important;">%s, %s %s</h2>',
             $weekday,
             $month,
             $day
@@ -872,7 +872,7 @@ function omp_show_detailed_orders_data()
         }
         $day = ltrim($date_obj->format('d'), '0');
         $date_header = sprintf(
-            '<h2 class="center">%s, %s %s</h2>',
+            '<h2 class="center" style="text-align: center !important;">%s, %s %s</h2>',
             $weekday,
             $month,
             $day
@@ -883,9 +883,9 @@ function omp_show_detailed_orders_data()
 
     // Get category name for category page
     $category_name = $orders[0]['delivery'] ?? '';
-    $category_header = $category_name ? sprintf('<h2>%s</h2>', esc_html($category_name)) : '';
+    $category_header = $category_name ? sprintf('<h2 style="text-align: left !important;">%s</h2>', esc_html($category_name)) : '';
 
-    $time_html = sprintf('<div class="response-time"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>', $response_time);
+    $time_html = sprintf('<div class="response-time" style="text-align: center;"><strong>' . esc_html__('Duomenys atnaujinti:', 'order-management-plugin') . '</strong> %s</div>', $response_time);
 
     if ($delivery_type_id === \OMP_MARKET_DELIVERY_TYPE_FIELD_ID) {
         $total_positions_html = omp_generate_market_product_table($orders);
